@@ -1,6 +1,22 @@
 let tasks = [];
 let filteredTasks = tasks; // Array to hold tasks after filtering
 
+// Base URL for API requests
+const baseUrl = 'http://localhost:3000/tasks';
+
+// Fetch all tasks from the server
+function fetchTasks() {
+    fetch(baseUrl)
+        .then(response => response.json())
+        .then(data => {
+            tasks = data;
+            filteredTasks = tasks;
+            renderTasks();
+        })
+        .catch(error => console.error('Error fetching tasks:', error));
+}
+
+// Function to add a new task
 function addTask() {
     const title = document.getElementById('task-title').value;
     const description = document.getElementById('task-description').value;
@@ -9,7 +25,6 @@ function addTask() {
 
     if (title && description && deadline) {
         const task = {
-            TaskID: tasks.length + 1,
             Title: title,
             Description: description,
             Deadline: new Date(deadline),
@@ -17,25 +32,65 @@ function addTask() {
             Priority: priority
         };
 
-        tasks.push(task);
-        renderTasks();
-        clearForm();
+        // Send POST request to add task
+        fetch(baseUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(task)
+        })
+            .then(response => response.json())
+            .then(() => {
+                fetchTasks(); // Refresh tasks list
+                clearForm();
+            })
+            .catch(error => console.error('Error adding task:', error));
     } else {
         alert('Please fill in all fields.');
     }
 }
 
+// Function to update task status (mark as completed)
+function updateTask(taskID) {
+    const task = tasks.find(task => task.TaskID === taskID);
+    if (task) {
+        const updatedTask = { Status: task.Status === 'Pending' ? 'Completed' : 'Pending' };
+
+        // Send PUT request to update task
+        fetch(`${baseUrl}/${taskID}`, {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(updatedTask)
+        })
+            .then(response => response.json())
+            .then(() => fetchTasks()) // Refresh tasks list
+            .catch(error => console.error('Error updating task:', error));
+    }
+}
+
+// Function to delete a task
+function deleteTask(taskID) {
+    // Send DELETE request to delete task
+    fetch(`${baseUrl}/${taskID}`, {
+        method: 'DELETE'
+    })
+        .then(response => response.json())
+        .then(() => fetchTasks()) // Refresh tasks list
+        .catch(error => console.error('Error deleting task:', error));
+}
+
+// Function to get task status based on deadline
 function getTaskStatus(deadline) {
     const currentDate = new Date();
     const taskDate = new Date(deadline);
 
-    if (taskDate < currentDate) {
-        return 'Overdue';
-    } else {
-        return 'Pending';
-    }
+    return taskDate < currentDate ? 'Overdue' : 'Pending';
 }
 
+// Render the task list
 function renderTasks() {
     const taskList = document.getElementById('task-list');
     taskList.innerHTML = '';
@@ -47,7 +102,7 @@ function renderTasks() {
         taskElement.innerHTML = `
             <h3>${task.Title} - <span class="status ${task.Status}">${task.Status}</span> - <span class="priority ${task.Priority}">${task.Priority}</span></h3>
             <p>${task.Description}</p>
-            <p>Deadline: ${task.Deadline.toLocaleDateString()}</p>
+            <p>Deadline: ${new Date(task.Deadline).toLocaleDateString()}</p>
             <button class="update" onclick="updateTask(${task.TaskID})">Mark as Completed</button>
             <button class="delete" onclick="deleteTask(${task.TaskID})">Delete</button>
         `;
@@ -56,30 +111,19 @@ function renderTasks() {
     });
 }
 
-function updateTask(taskID) {
-    const task = tasks.find(task => task.TaskID === taskID);
-    if (task) {
-        // Toggle between Pending and Completed
-        if (task.Status === 'Pending') {
-            task.Status = 'Completed';
-        } else if (task.Status === 'Completed') {
-            task.Status = 'Pending';
-        }
-        // Re-render tasks with updated status
-        renderTasks();
-    }
-}
+// Fetch tasks when the page loads
+window.onload = fetchTasks;
 
-function deleteTask(taskID) {
-    tasks = tasks.filter(task => task.TaskID !== taskID);
+// Search tasks
+function searchTasks() {
+    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
+    filteredTasks = tasks.filter(task =>
+        task.Title.toLowerCase().includes(searchTerm) || task.Description.toLowerCase().includes(searchTerm)
+    );
     renderTasks();
 }
 
-function sortTasks() {
-    tasks.sort((a, b) => a.Deadline - b.Deadline);
-    renderTasks();
-}
-
+// Filter tasks by status (Pending, Completed, Overdue, All)
 function filterTasks(status) {
     if (status === 'all') {
         filteredTasks = tasks;
@@ -89,20 +133,16 @@ function filterTasks(status) {
     renderTasks();
 }
 
-function searchTasks() {
-    const searchTerm = document.getElementById('search-bar').value.toLowerCase();
-    filteredTasks = tasks.filter(task =>
-        task.Title.toLowerCase().includes(searchTerm) || task.Description.toLowerCase().includes(searchTerm)
-    );
+// Sort tasks by deadline
+function sortTasks() {
+    tasks.sort((a, b) => new Date(a.Deadline) - new Date(b.Deadline));
     renderTasks();
 }
 
+// Clear the form after adding a task
 function clearForm() {
     document.getElementById('task-title').value = '';
     document.getElementById('task-description').value = '';
     document.getElementById('task-deadline').value = '';
     document.getElementById('priority').value = 'Medium';
 }
-
-// Call this function when the page loads to render all tasks
-window.onload = renderTasks;

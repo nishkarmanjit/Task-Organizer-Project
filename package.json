@@ -1,0 +1,16 @@
+{
+  "name": "project-task-organizer",
+  "version": "1.0.0",
+  "description": "Task Organizer is a **simple yet efficient application** built to help users seamlessly manage their tasks. It allows users to:\r - Add, update, delete, and view tasks.\r - Categorize tasks into **Pending**, **Completed**, and **Overdue** to prioritize effectively.",
+  "main": "task.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.21.1"
+  }
+}
