@@ -16,10 +16,35 @@
             <input type="text" id="task-title" placeholder="Task Title" required>
             <textarea id="task-description" placeholder="Task Description" required></textarea>
             <input type="date" id="task-deadline" required>
+
+            <!-- Priority Dropdown -->
+            <label for="priority">Priority:</label>
+            <select id="priority">
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+
             <button onclick="addTask()">Add Task</button>
         </div>
 
         <h2>Tasks</h2>
+
+        <!-- Search Bar -->
+        <div class="search-bar">
+            <input type="text" id="search-bar" placeholder="Search tasks..." onkeyup="searchTasks()">
+        </div>
+
+        <!-- Filter Tabs -->
+        <div class="tabs">
+            <button onclick="filterTasks('all')">All</button>
+            <button onclick="filterTasks('pending')">Pending</button>
+            <button onclick="filterTasks('completed')">Completed</button>
+            <button onclick="filterTasks('overdue')">Overdue</button>
+        </div>
+
+        <button onclick="sortTasks()">Sort Tasks by Deadline</button>
+
         <div class="task-list" id="task-list"></div>
     </div>
 

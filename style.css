@@ -24,7 +24,8 @@ h1 {
 
 input[type="text"],
 input[type="date"],
-textarea {
+textarea,
+select {
     padding: 10px;
     margin: 5px 0;
     border: 1px solid #ddd;
@@ -62,4 +63,71 @@ button.delete {
 
 button.delete:hover {
     background-color: darkred;
+}
+
+button.update {
+    background-color: #007BFF;
+}
+
+button.update:hover {
+    background-color: #0056b3;
+}
+
+button.sort {
+    padding: 10px;
+    background-color: #ff9800;
+    margin-bottom: 20px;
+}
+
+button.sort:hover {
+    background-color: #e68900;
+}
+
+.status {
+    font-weight: bold;
+}
+
+.Pending {
+    color: orange;
+}
+
+.Completed {
+    color: green;
+}
+
+.Overdue {
+    color: red;
+}
+
+.tabs button {
+    margin: 5px;
+    padding: 10px;
+    background-color: #f1f1f1;
+    border: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.tabs button:hover {
+    background-color: #ddd;
+}
+
+.search-bar {
+    margin: 20px 0;
+}
+
+.priority {
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.priority.High {
+    color: red;
+}
+
+.priority.Medium {
+    color: orange;
+}
+
+.priority.Low {
+    color: green;
 }
