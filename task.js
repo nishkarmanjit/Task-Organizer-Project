@@ -7,7 +7,12 @@ const baseUrl = 'http://localhost:3000/tasks';
 // Fetch all tasks from the server
 function fetchTasks() {
     fetch(baseUrl)
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to fetch tasks');
+            }
+            return response.json();
+        })
         .then(data => {
             tasks = data;
             filteredTasks = tasks;
@@ -18,8 +23,8 @@ function fetchTasks() {
 
 // Function to add a new task
 function addTask() {
-    const title = document.getElementById('task-title').value;
-    const description = document.getElementById('task-description').value;
+    const title = document.getElementById('task-title').value.trim();
+    const description = document.getElementById('task-description').value.trim();
     const deadline = document.getElementById('task-deadline').value;
     const priority = document.getElementById('priority').value;
 
@@ -40,7 +45,12 @@ function addTask() {
             },
             body: JSON.stringify(task)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to add task');
+                }
+                return response.json();
+            })
             .then(() => {
                 fetchTasks(); // Refresh tasks list
                 clearForm();
@@ -65,7 +75,12 @@ function updateTask(taskID) {
             },
             body: JSON.stringify(updatedTask)
         })
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to update task');
+                }
+                return response.json();
+            })
             .then(() => fetchTasks()) // Refresh tasks list
             .catch(error => console.error('Error updating task:', error));
     }
@@ -73,13 +88,20 @@ function updateTask(taskID) {
 
 // Function to delete a task
 function deleteTask(taskID) {
-    // Send DELETE request to delete task
-    fetch(`${baseUrl}/${taskID}`, {
-        method: 'DELETE'
-    })
-        .then(response => response.json())
-        .then(() => fetchTasks()) // Refresh tasks list
-        .catch(error => console.error('Error deleting task:', error));
+    if (confirm('Are you sure you want to delete this task?')) {
+        // Send DELETE request to delete task
+        fetch(`${baseUrl}/${taskID}`, {
+            method: 'DELETE'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to delete task');
+                }
+                return response.json();
+            })
+            .then(() => fetchTasks()) // Refresh tasks list
+            .catch(error => console.error('Error deleting task:', error));
+    }
 }
 
 // Function to get task status based on deadline
@@ -103,7 +125,7 @@ function renderTasks() {
             <h3>${task.Title} - <span class="status ${task.Status}">${task.Status}</span> - <span class="priority ${task.Priority}">${task.Priority}</span></h3>
             <p>${task.Description}</p>
             <p>Deadline: ${new Date(task.Deadline).toLocaleDateString()}</p>
-            <button class="update" onclick="updateTask(${task.TaskID})">Mark as Completed</button>
+            <button class="update" onclick="updateTask(${task.TaskID})">Mark as ${task.Status === 'Pending' ? 'Completed' : 'Pending'}</button>
             <button class="delete" onclick="deleteTask(${task.TaskID})">Delete</button>
         `;
 
